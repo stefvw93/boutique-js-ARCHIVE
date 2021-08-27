@@ -1,0 +1,43 @@
+html,
+body {
+  padding: 0;
+  margin: 0;
+}
+
+#app {
+  font-family: Avenir, Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  color: #2c3e50;
+}
+
+#root {
+  height: 100vh;
+}
+
+.brand {
+  position: absolute;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 10px 20px;
+}
+
+.funky-tiles {
+  display: grid;
+  grid-template-columns: repeat(10, 15px);
+  grid-template-rows: repeat(10, 15px);
+  gap: 1px;
+  height: 100%;
+  justify-content: center;
+  align-content: center;
+  box-sizing: border-box;
+}
+
+.tile {
+  transition: 1s background-color linear;
+  will-change: background-color;
+  border-radius: 50%;
+}
