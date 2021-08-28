@@ -9,7 +9,7 @@ Minimalistic MVC framework. Made as a fun experiment and out of dislike for feat
 ```ts
 function App() {
   return div({ id: "my-app" }, [
-    p({}, "hello world")
+    p({ $text: "hello world" })
   ]);
 }
 ```
@@ -23,7 +23,7 @@ function App() {
   setInterval(() => date.state = new Date(), 1000);
   
   return div({ id: "my-app" }, [
-    p({}, () => date.state.toLocaleTimeString())
+    p({ $text: () => date.state.toLocaleTimeString() })
   ]);
 }
 ```
@@ -33,15 +33,17 @@ function App() {
 ```ts
 function App() {
   const date = state(new Date());
+
+  effect([], () => {
+    setInterval(() => date.state = new Date(), 1000);
+  });
   
   effect([date], () => {
     console.log("date changed");
-  })
-
-  setInterval(() => date.state = new Date(), 1000);
+  });
   
   return div({ id: "my-app" }, [
-    p({}, () => date.state.toLocaleTimeString())
+    p({ $text: () => date.state.toLocaleTimeString() })
   ]);
 }
 ```
