@@ -4,7 +4,11 @@ Minimalistic MVC framework. Made as a fun experiment and out of dislike for feat
 
 ## Features
 
-### Create DOM elements
+- Create DOM elements or HTML
+- Reactive application state
+- Side effects
+
+## Create DOM elements
 
 ```ts
 function App() {
@@ -12,32 +16,37 @@ function App() {
     p({ $text: "hello world" })
   ]);
 }
+
+// get HTML string (for example; when server side rendering)
+App().html
 ```
 
-### Application state & reactivity
+## Application state & reactivity
 
 ```ts
-function App() {
-  const date = state(new Date());
+const date = state(new Date());
 
-  setInterval(() => date.state = new Date(), 1000);
-  
+setInterval(() => date.state = new Date(), 1000);
+
+function App() {
   return div({ id: "my-app" }, [
     p({ $text: () => date.state.toLocaleTimeString() })
   ]);
 }
 ```
 
-### Side effects
+## Side effects
 
 ```ts
 function App() {
   const date = state(new Date());
 
+  // runs when element appended to dom
   effect([], () => {
     setInterval(() => date.state = new Date(), 1000);
   });
   
+  // runs every time 'date' changes
   effect([date], () => {
     console.log("date changed");
   });
@@ -47,3 +56,9 @@ function App() {
   ]);
 }
 ```
+
+## Operators
+
+
+
+
