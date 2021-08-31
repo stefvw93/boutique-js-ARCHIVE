@@ -1,4 +1,4 @@
-import { seal } from "~/lib/utils/seal";
+import { seal } from "./utils/seal";
 import { effectStack } from "./BqNode";
 import { State } from "./State";
 

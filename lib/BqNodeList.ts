@@ -1,4 +1,4 @@
-import { seal } from "~/lib/utils/seal";
+import { seal } from "./utils/seal";
 import { BqNode, NodeChildren, NodeChildrenCreator } from "./BqNode";
 import { DomController } from "./DomController";
 import { State } from "./State";

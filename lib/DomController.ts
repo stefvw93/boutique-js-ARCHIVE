@@ -1,4 +1,4 @@
-import { seal } from "~/lib/utils/seal";
+import { seal } from "./utils/seal";
 
 export abstract class DomController {
   private __updateQueue: (() => void)[] = [];
