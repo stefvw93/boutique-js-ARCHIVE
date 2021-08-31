@@ -1,7 +1,7 @@
 import "./style.css";
-import { div, h1 } from "~/lib/elements";
-import { effect } from "~/lib/Effect";
-import { state } from "~/lib/State";
+import { div, h1 } from "../../lib/elements";
+import { effect } from "../../lib/Effect";
+import { state } from "../../lib/State";
 
 function Tile($key: number, hidden?: boolean) {
   const getRandomColor = () =>
