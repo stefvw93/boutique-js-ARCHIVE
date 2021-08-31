@@ -14,7 +14,7 @@
   "version": "0.0.0",
   "scripts": {
     "dev": "vite",
-    "build": "tsc && vite build && tsc lib/index.ts --declaration --emitDeclarationOnly --outDir dist --target ESNext",
+    "build": "tsc && vite build && tsc lib/index.ts --declaration --emitDeclarationOnly --outDir dist --target ESNext --moduleResolution Node",
     "serve": "npm run build && vite preview"
   },
   "devDependencies": {

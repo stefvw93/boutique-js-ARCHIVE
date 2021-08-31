@@ -1,10 +1,10 @@
-import { Dictionary } from "ts-essentials";
 import { BqNode, NodeChildren } from "./BqNode";
 
 type ElementCreator = (
-  attributes?: Dictionary<any>,
+  attributes?: Record<string, any>,
   children?: NodeChildren
 ) => () => BqNode;
+
 const _ = undefined;
 export const a = BqNode.create.bind(_, "a") as ElementCreator;
 export const abbr = BqNode.create.bind(_, "abbr") as ElementCreator;
