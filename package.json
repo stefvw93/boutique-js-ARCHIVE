@@ -18,9 +18,11 @@
     "build": "tsc && vite build && tsc lib/index.ts --declaration --emitDeclarationOnly --outDir dist --target ESNext --moduleResolution Node",
     "serve": "npm run build && vite preview"
   },
+  "dependencies": {
+    "ts-essentials": "^8.0.0"
+  },
   "devDependencies": {
     "@types/node": "^16.7.6",
-    "ts-essentials": "^8.0.0",
     "typescript": "^4.3.2",
     "vite": "^2.4.4"
   }
