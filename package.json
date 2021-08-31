@@ -5,6 +5,7 @@
   ],
   "main": "./dist/boutique.umd.js",
   "module": "./dist/boutique.es.js",
+  "types": "./dist/index.d.ts",
   "exports": {
     ".": {
       "import": "./dist/boutique.es.js",
