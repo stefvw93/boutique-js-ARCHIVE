@@ -1,6 +1,12 @@
 # boutique-js
 
-Minimalistic MVC framework. Made as a fun experiment and out of dislike for feature bloat in popular libraries.
+Boutique is a small, minimalistic library to create user interfaces with.
+
+Boutique focusses on
+
+- vanilla js, no pre-processors or compilers required
+- small amount of features means you're flexible
+- small library means small build size (approx. 3kb)
 
 ## Features
 
