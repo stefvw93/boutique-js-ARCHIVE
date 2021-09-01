@@ -1,5 +1,5 @@
 import "./style.css";
-import { div, h1, section } from "../../lib/elements";
+import { div, h1 } from "../../lib/elements";
 import { effect } from "../../lib/Effect";
 import { state } from "../../lib/State";
 
@@ -15,12 +15,12 @@ function Tile($key: number, hidden?: boolean) {
 
   effect([], () => {
     if (hidden) return;
-    // setTimeout(() => {
-    //   color.state = getRandomColor();
-    //   setInterval(() => {
-    //     color.state = getRandomColor();
-    //   }, 1000);
-    // }, Math.random() * 1000);
+    setTimeout(() => {
+      color.state = getRandomColor();
+      setInterval(() => {
+        color.state = getRandomColor();
+      }, 1000);
+    }, Math.random() * 1000);
   });
 
   return div({
@@ -61,8 +61,7 @@ function App() {
   return div({ id: "root" }, [
     div({ className: "brand" }, [
       h1({ $text: "Boutique.js" }),
-      section({
-        $if: () => time.state.getSeconds() % 2 === 0,
+      div({
         $text: () => `${time.state.toTimeString().split(" ")[0]}`,
       }),
     ]),
