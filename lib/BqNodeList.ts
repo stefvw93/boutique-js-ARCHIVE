@@ -7,6 +7,7 @@ import {
 } from "./BqNode";
 import { DomController } from "./DomController";
 import { State } from "./State";
+import { spliceEach } from "./utils/spliceEach";
 
 export class BqNodeList extends DomController {
   static currentNode?: BqNodeList;
@@ -44,28 +45,36 @@ export class BqNodeList extends DomController {
 
   updateDom() {
     const parentElement = this.__parent.element;
-
     if (!parentElement) return;
 
     this.__queueDomUpdate(() => {
-      while (this.__shouldRemoveIndices.length > 0) {
-        parentElement.children[this.__shouldRemoveIndices[0]].remove();
-        this.__shouldRemoveIndices.splice(0, 1);
-      }
+      try {
+        // remove
 
-      while (this.__shouldUpdateIndices.length > 0) {
-        parentElement.replaceChild(
-          this.children[this.__shouldUpdateIndices[0]].renderDom(),
-          parentElement.children[this.__shouldUpdateIndices[0]]
-        );
-        this.__shouldUpdateIndices.splice(0, 1);
-      }
+        const removeChildren: Element[] = [];
 
-      while (this.__shouldAppendIndices.length > 0) {
-        parentElement.appendChild(
-          this.children[this.__shouldAppendIndices[0]].renderDom()
+        spliceEach(this.__shouldRemoveIndices, (n) => {
+          removeChildren.push(parentElement.children[n]);
+        });
+
+        removeChildren.forEach((child) => child.remove());
+
+        // replace
+
+        spliceEach(this.__shouldUpdateIndices, (n) =>
+          parentElement.replaceChild(
+            this.children[n].renderDom(),
+            parentElement.children[n]
+          )
         );
-        this.__shouldAppendIndices.splice(0, 1);
+
+        // append
+
+        spliceEach(this.__shouldAppendIndices, (n) =>
+          parentElement.appendChild(this.children[n].renderDom())
+        );
+      } catch (e) {
+        console.log(e);
       }
     });
   }

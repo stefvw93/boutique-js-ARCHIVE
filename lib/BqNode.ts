@@ -4,6 +4,7 @@ import { BqNodeList } from "./BqNodeList";
 import { DomController } from "./DomController";
 import { Effect } from "./Effect";
 import { State } from "./State";
+import { spliceEach } from "./utils/spliceEach";
 
 export type NodeCreator = () => BqNode;
 export type NodeChildrenCreator = () => NodeCreator[];
@@ -61,7 +62,8 @@ export class BqNode extends DomController {
   }
 
   get html(): string {
-    const attributes = () =>
+    return [
+      `<${this.tag}`,
       Object.entries(this.__attributeState).reduce(
         (accumulator, [key, value]) => {
           if ([key.startsWith("$"), key.startsWith("on")].includes(true)) {
@@ -72,18 +74,11 @@ export class BqNode extends DomController {
           );
         },
         ""
-      );
-
-    const children = () =>
-      this.__attributeState.$text ??
-      this.__childNodeList?.children.map((child) => child.html).join("") ??
-      "";
-
-    return [
-      `<${this.tag}`,
-      attributes(),
+      ),
       `>`,
-      children(),
+      this.__attributeState.$text ??
+        this.__childNodeList?.children.map((child) => child.html).join("") ??
+        "",
       `</${this.tag}>`,
     ].join("");
   }
@@ -133,6 +128,14 @@ export class BqNode extends DomController {
   updateDom() {
     if (!this.__doRenderDom) return;
 
+    this.__queueDomUpdate(this.__setElementAttributes.bind(this), () => {
+      spliceEach(this.__changedStates, (state) => {
+        this.__boundEffects.forEach((effect) => {
+          effect.dispatch(state);
+        });
+      });
+    });
+
     if (this.__shouldAppend != this.__shouldRemove) {
       this.__queueDomUpdate(
         () => {
@@ -145,23 +148,10 @@ export class BqNode extends DomController {
           }
         },
         this.__shouldAppend
-          ? () => {
-              this.__boundEffects.forEach((effect) => effect.dispatch());
-            }
-          : () => {
-              this.__boundEffects.forEach((effect) => effect.cleanup());
-            }
+          ? () => this.__boundEffects.forEach((effect) => effect.dispatch())
+          : () => this.__boundEffects.forEach((effect) => effect.cleanup())
       );
     }
-
-    this.__queueDomUpdate(this.__setElementAttributes.bind(this), () => {
-      while (this.__changedStates.length > 0) {
-        this.__boundEffects.forEach((effect) => {
-          effect.dispatch(this.__changedStates[0]);
-        });
-        this.__changedStates.splice(0, 1);
-      }
-    });
   }
 
   onStateChange(state: State<unknown>) {
@@ -195,9 +185,7 @@ export class BqNode extends DomController {
         return;
       }
 
-      if (key.substr(0, 2) === "on" || key[0] === "$") {
-        return;
-      }
+      if (key[0] === "$") return;
 
       this.element!.setAttribute(this.__getHtmlAttributeName(key), value);
     });

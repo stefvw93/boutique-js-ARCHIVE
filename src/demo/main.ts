@@ -35,7 +35,7 @@ function Tile($key: number, hidden?: boolean) {
 }
 
 function FunkyTiles() {
-  const numbers = state<number[]>(new Array(100).fill(0).map((_, i) => i));
+  const numbers = new Array(100).fill(0).map((_, i) => i);
 
   const hidden = [
     12, 13, 14, 15, 16, 23, 27, 33, 37, 43, 44, 45, 46, 53, 57, 63, 68, 73, 78,
@@ -47,7 +47,7 @@ function FunkyTiles() {
       className: "funky-tiles",
       style: `padding-bottom: ${outerHeight - innerHeight}px`,
     },
-    numbers.state.map((number) => Tile(number, hidden.includes(number)))
+    numbers.map((number) => Tile(number, hidden.includes(number)))
   );
 }
 
