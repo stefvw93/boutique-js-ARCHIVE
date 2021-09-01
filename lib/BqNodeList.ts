@@ -1,5 +1,10 @@
 import { seal } from "./utils/seal";
-import { BqNode, NodeChildren, NodeChildrenCreator } from "./BqNode";
+import {
+  BqNode,
+  NodeChildren,
+  NodeChildrenCreator,
+  NodeCreator,
+} from "./BqNode";
 import { DomController } from "./DomController";
 import { State } from "./State";
 
@@ -19,8 +24,8 @@ export class BqNodeList extends DomController {
     this.__childSource = children;
     BqNodeList.currentNode = this;
     this.children = this.__isDynamic(this.__childSource)
-      ? this.__childSource().map((child) => child())
-      : this.__childSource.map((child) => child());
+      ? this.__childSource().map(this.__createChild.bind(this))
+      : this.__childSource.map(this.__createChild.bind(this));
     BqNodeList.currentNode = undefined;
     seal(this);
   }
@@ -28,9 +33,12 @@ export class BqNodeList extends DomController {
   renderDom() {
     if (this.__parent.element === undefined) return;
     this.__parent.element?.append(
-      ...this.children
-        .filter((child) => child.attributes.$if?.() ?? true)
-        .map((child) => child.renderDom())
+      ...this.children.reduce((elements, child) => {
+        const shouldMount = child.attributes.$if?.() ?? true;
+        const element = child.renderDom(shouldMount);
+        if (shouldMount) return elements.concat(element);
+        return elements;
+      }, [] as HTMLElement[])
     );
   }
 
@@ -111,6 +119,12 @@ export class BqNodeList extends DomController {
     this.children = nextChildren;
 
     this.updateDom();
+  }
+
+  private __createChild(creator: NodeCreator): BqNode {
+    const node = creator();
+    node.parent = this.__parent;
+    return node;
   }
 
   private __isDynamic(children: NodeChildren): children is NodeChildrenCreator {

@@ -109,10 +109,10 @@ export class BqNode extends DomController {
   mount(element: HTMLElement) {
     this.__mountingElement = element;
     element.innerHTML = "";
-    element.appendChild(this.renderDom());
+    element.appendChild(this.renderDom(true));
   }
 
-  renderDom() {
+  renderDom(willMount = false) {
     if (!this.isFirstRender) throw new Error("Use update method instead.");
     this.__doRenderDom = true;
     this.__setAttributeState();
@@ -120,7 +120,13 @@ export class BqNode extends DomController {
     this.__setElementAttributes();
     this.__childNodeList?.renderDom();
     this.isFirstRender = false;
-    this.__boundEffects.forEach((effect) => effect.dispatch());
+
+    if (willMount) {
+      this.__queueDomUpdate(() => {
+        this.__boundEffects.forEach((effect) => effect.dispatch());
+      });
+    }
+
     return this.element;
   }
 
