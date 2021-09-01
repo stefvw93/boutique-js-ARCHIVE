@@ -78,7 +78,7 @@ function MyComponent() {
   effect([], () => {
     myElement = document.getElementById("my-component");
 
-    document.body.addEventListener("mousemove", (event: MouseEvent) => {
+    document.body.addEventListener("mousemove", (event) => {
       mouseX = event.clientX;
       mouseY = event.clientY;
     });
