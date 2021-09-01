@@ -32,7 +32,7 @@ export declare class BqNode extends DomController {
     private get __shouldRemove();
     private get __shouldAppend();
     mount(element: HTMLElement): void;
-    renderDom(): HTMLElement;
+    renderDom(willMount?: boolean): HTMLElement;
     updateDom(): void;
     onStateChange(state: State<unknown>): void;
     private __setElementAttributes;

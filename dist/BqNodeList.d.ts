@@ -13,6 +13,7 @@ export declare class BqNodeList extends DomController {
     renderDom(): void;
     updateDom(): void;
     onStateChange(_: State<any>): void;
+    private __createChild;
     private __isDynamic;
 }
 export declare function list(): void;
