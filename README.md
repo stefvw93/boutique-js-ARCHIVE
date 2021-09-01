@@ -6,17 +6,24 @@ Minimalistic MVC framework. Made as a fun experiment and out of dislike for feat
 
 - Create DOM elements or HTML
 - Reactive application state
-- Side effects
+- Run side effects
 
 ## Create DOM elements
+
+You can build your user interface using the built-in html element functions, like `div()`. These functions receive attributes and children, and return a virtual DOM node which you can mount.
 
 ```ts
 function App() {
   return div({ id: "my-app" }, [p({ $text: "hello world" })]);
 }
 
-// get HTML string (for example; when server side rendering)
-App().html;
+const app = App();
+
+// mount your app
+app().mount(document.body);
+
+// or get HTML as string (for example; when server side rendering)
+app().html;
 ```
 
 ## Application state & reactivity
@@ -57,6 +64,27 @@ function App() {
   return div({ id: "my-app" }, [
     p({ $text: () => date.state.toLocaleTimeString() }),
   ]);
+}
+```
+
+As you can maybe make out from the examples so far, your entire app tree, made out of multiple functions, will only have to run _once_ to create your entire DOM tree and state bindings. This means, among other things, that anything you define in function scope will be maintained.
+
+```js
+function MyComponent() {
+  let mouseX;
+  let mouseY;
+  let myElement;
+
+  effect([], () => {
+    myElement = document.getElementById("my-component");
+
+    document.body.addEventListener("mousemove", (event: MouseEvent) => {
+      mouseX = event.clientX;
+      mouseY = event.clientY;
+    });
+  });
+
+  return div({ id: "my-component" });
 }
 ```
 
