@@ -28,7 +28,9 @@ export class BqNodeList extends DomController {
   renderDom() {
     if (this.__parent.element === undefined) return;
     this.__parent.element?.append(
-      ...this.children.map((child) => child.renderDom())
+      ...this.children
+        .filter((child) => child.attributes.$if?.() ?? true)
+        .map((child) => child.renderDom())
     );
   }
 
