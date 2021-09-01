@@ -37,6 +37,9 @@ export declare class BqNode extends DomController {
     onStateChange(state: State<unknown>): void;
     private __setElementAttributes;
     private __setAttributeState;
+    private __handleNewAttributeValue;
+    private __dispatchEffects;
+    private __cleanUpEffects;
     private __isDynamicAttribute;
     private __getHtmlAttributeName;
 }

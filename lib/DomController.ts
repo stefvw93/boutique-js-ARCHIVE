@@ -1,4 +1,5 @@
 import { seal } from "./utils/seal";
+import { spliceEach } from "./utils/spliceEach";
 
 export abstract class DomController {
   private __updateQueue: (() => void)[] = [];
@@ -19,14 +20,7 @@ export abstract class DomController {
   }
 
   private __executeDomUpdates = () => {
-    while (this.__updateQueue.length > 0) {
-      this.__updateQueue[0]();
-      this.__updateQueue.splice(0, 1);
-    }
-
-    while (this.__callbackQueue.length > 0) {
-      this.__callbackQueue[0]();
-      this.__callbackQueue.splice(0, 1);
-    }
+    spliceEach(this.__updateQueue, (update) => update());
+    spliceEach(this.__callbackQueue, (callback) => callback());
   };
 }

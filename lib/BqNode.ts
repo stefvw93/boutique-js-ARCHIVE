@@ -117,9 +117,7 @@ export class BqNode extends DomController {
     this.isFirstRender = false;
 
     if (willMount) {
-      this.__queueDomUpdate(() => {
-        this.__boundEffects.forEach((effect) => effect.dispatch());
-      });
+      this.__queueDomUpdate(this.__dispatchEffects.bind(this));
     }
 
     return this.element;
@@ -129,11 +127,7 @@ export class BqNode extends DomController {
     if (!this.__doRenderDom) return;
 
     this.__queueDomUpdate(this.__setElementAttributes.bind(this), () => {
-      spliceEach(this.__changedStates, (state) => {
-        this.__boundEffects.forEach((effect) => {
-          effect.dispatch(state);
-        });
-      });
+      spliceEach(this.__changedStates, this.__dispatchEffects.bind(this));
     });
 
     if (this.__shouldAppend != this.__shouldRemove) {
@@ -148,8 +142,8 @@ export class BqNode extends DomController {
           }
         },
         this.__shouldAppend
-          ? () => this.__boundEffects.forEach((effect) => effect.dispatch())
-          : () => this.__boundEffects.forEach((effect) => effect.cleanup())
+          ? () => this.__dispatchEffects()
+          : () => this.__cleanUpEffects()
       );
     }
   }
@@ -201,27 +195,13 @@ export class BqNode extends DomController {
     if (this.__doSetStaticAttributes) {
       Object.entries(this.attributes).forEach(([key, value]) => {
         isDynamic = this.__isDynamicAttribute(key, value);
-
-        if (isDynamic) {
-          this.__dynamicAttributes.push(key);
-          newValue = value();
-        } else {
-          newValue = value;
-        }
-
-        if (newValue !== this.__attributeState[key]) {
-          this.__changedAttributes.push(key);
-          this.__attributeState[key] = newValue;
-        }
+        newValue = isDynamic ? value() : value;
+        this.__handleNewAttributeValue(key, newValue);
       });
     } else {
       this.__dynamicAttributes.forEach((key) => {
         newValue = this.attributes[key]();
-
-        if (newValue !== this.__attributeState[key]) {
-          this.__changedAttributes.push(key);
-          this.__attributeState[key] = newValue;
-        }
+        this.__handleNewAttributeValue(key, newValue);
       });
     }
 
@@ -229,14 +209,34 @@ export class BqNode extends DomController {
     this.__doSetStaticAttributes = false;
   }
 
+  private __handleNewAttributeValue(key: string, newValue: any) {
+    if (newValue !== this.__attributeState[key]) {
+      this.__changedAttributes.push(key);
+      this.__attributeState[key] = newValue;
+    }
+  }
+
+  private __dispatchEffects(withState?: State<unknown>) {
+    this.__boundEffects.forEach((effect) => effect.dispatch(withState));
+  }
+
+  private __cleanUpEffects() {
+    this.__boundEffects.forEach((effect) => effect.cleanup());
+  }
+
   private __isDynamicAttribute(
     key: string,
     value: AttributeValue
   ): value is AttributeGetter {
-    return (
+    if (
       key === "$if" ||
       (key.substr(0, 2) !== "on" && typeof value === "function")
-    );
+    ) {
+      this.__dynamicAttributes.push(key);
+      return true;
+    }
+
+    return false;
   }
 
   private __getHtmlAttributeName(name: string) {
