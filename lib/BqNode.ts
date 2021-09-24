@@ -2,9 +2,7 @@ import { Dictionary } from "ts-essentials";
 import { seal } from "./utils/seal";
 import { BqNodeList } from "./BqNodeList";
 import { DomController } from "./DomController";
-import { Effect } from "./Effect";
 import { State } from "./State";
-import { spliceEach } from "./utils/spliceEach";
 
 export type NodeCreator = () => BqNode;
 export type NodeChildrenCreator = () => NodeCreator[];
@@ -12,14 +10,16 @@ export type NodeChildren = NodeCreator[] | NodeChildrenCreator;
 export type AttributeType = string | number | boolean | null | undefined;
 export type AttributeGetter = () => AttributeType;
 export type AttributeValue = AttributeType | AttributeGetter;
+export type LifecycleCallback = (element?: HTMLElement) => any;
 
 // type Attributes = {
 //   $if?(): boolean;
 //   $text: AttributeValue;
 //   $html: AttributeValue;
+//   $onAppend?(): any;
+//   $onRemove?(): any;
+//   $onUpdate?(): any;
 // };
-
-export const effectStack: Effect[] = [];
 
 export class BqNode extends DomController {
   static currentNode?: BqNode;
@@ -29,10 +29,7 @@ export class BqNode extends DomController {
     attributes: Dictionary<any> = {},
     children?: NodeChildren
   ) {
-    const _effectStack = effectStack.slice();
-    const creator = () => new BqNode(tag, attributes, children, _effectStack);
-    effectStack.splice(0, effectStack.length);
-    return creator;
+    return () => new BqNode(tag, attributes, children);
   }
 
   parent?: BqNode;
@@ -40,7 +37,6 @@ export class BqNode extends DomController {
   isFirstRender = true;
   private __attributeState: Dictionary<any> = { $if: true };
   private __changedStates: State<unknown>[] = [];
-  private __boundEffects: Effect[];
   private __changedAttributes: string[] = [];
   private __childNodeList?: BqNodeList;
   private __doSetStaticAttributes = true;
@@ -51,11 +47,9 @@ export class BqNode extends DomController {
   constructor(
     public tag: string,
     public attributes: Dictionary<any>,
-    children?: NodeChildren,
-    boundEffects: Effect[] = []
+    children?: NodeChildren
   ) {
     super();
-    this.__boundEffects = boundEffects;
     if (children) this.__childNodeList = new BqNodeList(this, children);
     this.__setAttributeState();
     seal(this);
@@ -66,7 +60,7 @@ export class BqNode extends DomController {
       `<${this.tag}`,
       Object.entries(this.__attributeState).reduce(
         (accumulator, [key, value]) => {
-          if ([key.startsWith("$"), key.startsWith("on")].includes(true)) {
+          if ([key.startsWith("$"), this.__isEventName(key)].includes(true)) {
             return accumulator;
           }
           return (
@@ -101,6 +95,18 @@ export class BqNode extends DomController {
     );
   }
 
+  private get __onAppend(): LifecycleCallback | undefined {
+    return this.__attributeState.$onAppend;
+  }
+
+  private get __onUpdate(): LifecycleCallback | undefined {
+    return this.__attributeState.$onUpdate;
+  }
+
+  private get __onRemove(): LifecycleCallback | undefined {
+    return this.__attributeState.$onRemove;
+  }
+
   mount(element: HTMLElement) {
     this.__mountingElement = element;
     element.innerHTML = "";
@@ -117,7 +123,7 @@ export class BqNode extends DomController {
     this.isFirstRender = false;
 
     if (willMount) {
-      this.__queueDomUpdate(this.__dispatchEffects.bind(this));
+      this.__queueDomUpdate(undefined, () => this.__onAppend?.(this.element));
     }
 
     return this.element;
@@ -126,9 +132,10 @@ export class BqNode extends DomController {
   updateDom() {
     if (!this.__doRenderDom) return;
 
-    this.__queueDomUpdate(this.__setElementAttributes.bind(this), () => {
-      spliceEach(this.__changedStates, this.__dispatchEffects.bind(this));
-    });
+    this.__queueDomUpdate(
+      this.__setElementAttributes.bind(this),
+      this.__onUpdate?.(this.element)
+    );
 
     if (this.__shouldAppend != this.__shouldRemove) {
       this.__queueDomUpdate(
@@ -142,8 +149,8 @@ export class BqNode extends DomController {
           }
         },
         this.__shouldAppend
-          ? () => this.__dispatchEffects()
-          : () => this.__cleanUpEffects()
+          ? () => this.__onAppend?.(this.element)
+          : () => this.__onRemove?.(this.element)
       );
     }
   }
@@ -174,8 +181,8 @@ export class BqNode extends DomController {
         return;
       }
 
-      if (key.substr(0, 2) === "on") {
-        this.element![key as "onclick"] = value;
+      if (this.__isEventName(key)) {
+        (this.element! as any)[this.__getHtmlAttributeName(key)] = value;
         return;
       }
 
@@ -216,21 +223,14 @@ export class BqNode extends DomController {
     }
   }
 
-  private __dispatchEffects(withState?: State<unknown>) {
-    this.__boundEffects.forEach((effect) => effect.dispatch(withState));
-  }
-
-  private __cleanUpEffects() {
-    this.__boundEffects.forEach((effect) => effect.cleanup());
-  }
-
   private __isDynamicAttribute(
     key: string,
     value: AttributeValue
   ): value is AttributeGetter {
     if (
-      key === "$if" ||
-      (key.substr(0, 2) !== "on" && typeof value === "function")
+      !key.startsWith("$on") &&
+      (key === "$if" ||
+        (!this.__isEventName(key) && typeof value === "function"))
     ) {
       this.__dynamicAttributes.push(key);
       return true;
@@ -240,6 +240,10 @@ export class BqNode extends DomController {
   }
 
   private __getHtmlAttributeName(name: string) {
+    if (this.__isEventName(name)) {
+      return name.toLowerCase();
+    }
+
     switch (name) {
       case "className":
         return "class";
@@ -249,5 +253,11 @@ export class BqNode extends DomController {
       .split(/(?=[A-Z])/)
       .map((str) => str.toLowerCase())
       .join("-");
+  }
+
+  private __isEventName(name: string) {
+    return (
+      name.startsWith("on") && name.charAt(2) === name.charAt(2).toUpperCase()
+    );
   }
 }

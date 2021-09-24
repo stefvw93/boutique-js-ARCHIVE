@@ -1,9 +1,10 @@
 import "./style.css";
 import { div, h1 } from "../../lib/elements";
-import { effect } from "../../lib/Effect";
 import { state } from "../../lib/State";
 
 function Tile($key: number, hidden?: boolean) {
+  const color = state("#FFF");
+
   const getRandomColor = () =>
     `rgb(${[
       Math.round(Math.random() * 255),
@@ -11,9 +12,7 @@ function Tile($key: number, hidden?: boolean) {
       Math.round(Math.random() * 255),
     ].join(",")})`;
 
-  const color = state("#FFF");
-
-  effect([], () => {
+  const $onAppend = () => {
     if (hidden) return;
     setTimeout(() => {
       color.state = getRandomColor();
@@ -21,16 +20,16 @@ function Tile($key: number, hidden?: boolean) {
         color.state = getRandomColor();
       }, 1000);
     }, Math.random() * 1000);
-  });
+  };
 
   return div({
-    id: () => $key,
+    $onAppend,
+    $key,
     className: "tile",
     style: () =>
       `background-color: ${color.state}; visibility: ${
         hidden ? "hidden" : "visible"
       }`,
-    $key,
   });
 }
 
@@ -54,11 +53,9 @@ function FunkyTiles() {
 function App() {
   const time = state(new Date());
 
-  effect([], () => {
-    setInterval(() => (time.state = new Date()), 500);
-  });
+  const $onAppend = () => setInterval(() => (time.state = new Date()), 500);
 
-  return div({ id: "root" }, [
+  return div({ id: "root", $onAppend }, [
     div({ className: "brand" }, [
       h1({ $text: "Boutique.js" }),
       div({

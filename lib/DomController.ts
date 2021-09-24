@@ -12,10 +12,10 @@ export abstract class DomController {
 
   abstract renderDom(): any;
 
-  protected __queueDomUpdate(update: () => void, callback?: () => void) {
+  protected __queueDomUpdate(update?: () => void, callback?: () => void) {
     if (this.__requestId) cancelAnimationFrame(this.__requestId);
     if (callback) this.__callbackQueue.push(callback);
-    this.__updateQueue.push(update);
+    if (update) this.__updateQueue.push(update);
     this.__requestId = requestAnimationFrame(this.__executeDomUpdates);
   }
 
