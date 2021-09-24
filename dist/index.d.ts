@@ -1,3 +1,3 @@
 export * from "./elements";
-export * from "./State";
-export * from "./Effect";
+export { state } from "./reactivity/State";
+export { computed } from "./reactivity/Computed";

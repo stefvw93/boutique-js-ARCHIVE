@@ -1,2 +1,3 @@
 export * from "./elements";
-export * from "./reactivity/State";
+export { state } from "./reactivity/State";
+export { computed } from "./reactivity/Computed";

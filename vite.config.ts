@@ -11,6 +11,7 @@ export default defineConfig(({ command, mode }) => {
         name: "Boutique",
         fileName: (format) => `boutique.${format}.js`,
       },
+
       rollupOptions: {
         input: ["./lib/index.ts"],
         // make sure to externalize deps that shouldn't be bundled
@@ -24,6 +25,7 @@ export default defineConfig(({ command, mode }) => {
           },
         },
       },
+
       terserOptions: {
         compress: {
           drop_console: true,

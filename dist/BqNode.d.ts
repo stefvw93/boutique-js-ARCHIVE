@@ -1,14 +1,13 @@
 import { Dictionary } from "ts-essentials";
 import { DomController } from "./DomController";
-import { Effect } from "./Effect";
-import { State } from "./State";
+import { State } from "./reactivity/State";
 export declare type NodeCreator = () => BqNode;
 export declare type NodeChildrenCreator = () => NodeCreator[];
 export declare type NodeChildren = NodeCreator[] | NodeChildrenCreator;
 export declare type AttributeType = string | number | boolean | null | undefined;
 export declare type AttributeGetter = () => AttributeType;
 export declare type AttributeValue = AttributeType | AttributeGetter;
-export declare const effectStack: Effect[];
+export declare type LifecycleCallback = (element?: HTMLElement) => any;
 export declare class BqNode extends DomController {
     tag: string;
     attributes: Dictionary<any>;
@@ -19,18 +18,20 @@ export declare class BqNode extends DomController {
     isFirstRender: boolean;
     private __attributeState;
     private __changedStates;
-    private __boundEffects;
     private __changedAttributes;
     private __childNodeList?;
     private __doSetStaticAttributes;
     private __dynamicAttributes;
     private __doRenderDom;
     private __mountingElement?;
-    constructor(tag: string, attributes: Dictionary<any>, children?: NodeChildren, boundEffects?: Effect[]);
+    constructor(tag: string, attributes: Dictionary<any>, children?: NodeChildren);
     get html(): string;
     private get __parentElement();
     private get __shouldRemove();
     private get __shouldAppend();
+    private get __onAppend();
+    private get __onUpdate();
+    private get __onRemove();
     mount(element: HTMLElement): void;
     renderDom(willMount?: boolean): HTMLElement;
     updateDom(): void;
@@ -38,8 +39,7 @@ export declare class BqNode extends DomController {
     private __setElementAttributes;
     private __setAttributeState;
     private __handleNewAttributeValue;
-    private __dispatchEffects;
-    private __cleanUpEffects;
     private __isDynamicAttribute;
     private __getHtmlAttributeName;
+    private __isEventName;
 }

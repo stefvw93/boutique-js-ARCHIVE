@@ -1,6 +1,6 @@
 import { BqNode, NodeChildren } from "./BqNode";
 import { DomController } from "./DomController";
-import { State } from "./State";
+import { State } from "./reactivity/State";
 export declare class BqNodeList extends DomController {
     static currentNode?: BqNodeList;
     children: BqNode[];
