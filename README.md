@@ -55,8 +55,11 @@ function App() {
   // runs when element appended to dom
   const $onAppend = () => setInterval(() => (date.state = new Date()), 1000);
 
-  // runs on any update
-  const $onUpdate = () => console.log("update");
+  // runs on any element update
+  const $onUpdate = () => console.log("updated");
+
+  // runs when element was removed from the DOM
+  const $onRemove = () => console.log("removed");
 
   // runs every time 'date' changes
   date.addListener((value) => {
@@ -67,6 +70,7 @@ function App() {
     {
       $onAppend,
       $onUpdate,
+      $onRemove,
       id: "my-app",
     },
     [p({ $text: () => date.state.toLocaleTimeString() })]
@@ -82,16 +86,16 @@ function MyComponent() {
   let mouseY;
   let myElement;
 
-  effect([], () => {
+  const $onAppend = () => {
     myElement = document.getElementById("my-component");
 
     document.body.addEventListener("mousemove", (event) => {
       mouseX = event.clientX;
       mouseY = event.clientY;
     });
-  });
+  };
 
-  return div({ id: "my-component" });
+  return div({ id: "my-component", $onAppend });
 }
 ```
 
