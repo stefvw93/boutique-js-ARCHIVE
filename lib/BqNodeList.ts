@@ -6,7 +6,7 @@ import {
   NodeCreator,
 } from "./BqNode";
 import { DomController } from "./DomController";
-import { State } from "./State";
+import { State } from "./reactivity/State";
 import { spliceEach } from "./utils/spliceEach";
 
 export class BqNodeList extends DomController {

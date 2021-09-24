@@ -1,6 +1,7 @@
 import "./style.css";
 import { div, h1 } from "../../lib/elements";
-import { state } from "../../lib/State";
+import { state } from "../../lib/reactivity/State";
+import { computed, Computed } from "../../lib/reactivity/Computed";
 
 function Tile($key: number, hidden?: boolean) {
   const color = state("#FFF");

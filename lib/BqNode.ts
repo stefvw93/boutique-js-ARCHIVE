@@ -2,7 +2,7 @@ import { Dictionary } from "ts-essentials";
 import { seal } from "./utils/seal";
 import { BqNodeList } from "./BqNodeList";
 import { DomController } from "./DomController";
-import { State } from "./State";
+import { State } from "./reactivity/State";
 
 export type NodeCreator = () => BqNode;
 export type NodeChildrenCreator = () => NodeCreator[];

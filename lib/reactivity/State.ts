@@ -1,11 +1,14 @@
-import { seal } from "./utils/seal";
-import { BqNode } from "./BqNode";
-import { BqNodeList } from "./BqNodeList";
+import { seal } from "../utils/seal";
+import { BqNode } from "../BqNode";
+import { BqNodeList } from "../BqNodeList";
+
+export const readStatePool: State<any>[] = [];
 
 export class State<T> {
   private __boundNodes: (BqNodeList | BqNode)[] = [];
-  private __internalState: T;
   private __listeners: ((value: T) => void)[] = [];
+  protected __trackReadCalls = true;
+  protected __internalState: T;
 
   constructor(initialValue: T) {
     this.__internalState = initialValue;
@@ -16,6 +19,11 @@ export class State<T> {
     const boundNodes = this.__boundNodes;
     const currentNode = BqNode.currentNode;
     const currentNodeList = BqNodeList.currentNode;
+
+    if (this.__trackReadCalls) {
+      this.__trackReadCalls = false;
+      readStatePool.push(this);
+    }
 
     if (currentNode && !boundNodes.includes(currentNode)) {
       boundNodes.push(currentNode);
@@ -29,11 +37,7 @@ export class State<T> {
   }
 
   set state(newValue: T) {
-    if (newValue !== this.__internalState) {
-      this.__internalState = newValue;
-      this.__listeners.forEach((cb) => cb(this.__internalState));
-      this.__boundNodes.forEach((node) => node.onStateChange(this));
-    }
+    this.__updateState(newValue);
   }
 
   set(updater: (current: T) => T) {
@@ -43,6 +47,14 @@ export class State<T> {
   addListener(callback: (value: T) => void) {
     this.__listeners.push(callback);
     return this;
+  }
+
+  protected __updateState(newValue: T) {
+    if (newValue !== this.__internalState) {
+      this.__internalState = newValue;
+      this.__listeners.forEach((cb) => cb(this.__internalState));
+      this.__boundNodes.forEach((node) => node.onStateChange(this));
+    }
   }
 }
 
