@@ -5,7 +5,7 @@ import { BqNodeList } from "./BqNodeList";
 export class State<T> {
   private __boundNodes: (BqNodeList | BqNode)[] = [];
   private __internalState: T;
-  private __listeners: ((origin: this) => void)[] = [];
+  private __listeners: ((value: T) => void)[] = [];
 
   constructor(initialValue: T) {
     this.__internalState = initialValue;
@@ -31,7 +31,7 @@ export class State<T> {
   set state(newValue: T) {
     if (newValue !== this.__internalState) {
       this.__internalState = newValue;
-      this.__listeners.forEach((cb) => cb(this));
+      this.__listeners.forEach((cb) => cb(this.__internalState));
       this.__boundNodes.forEach((node) => node.onStateChange(this));
     }
   }
@@ -40,7 +40,7 @@ export class State<T> {
     this.state = updater(this.__internalState);
   }
 
-  addListener(callback: (origin: this) => void) {
+  addListener(callback: (value: T) => void) {
     this.__listeners.push(callback);
     return this;
   }

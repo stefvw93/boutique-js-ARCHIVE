@@ -53,23 +53,24 @@ function App() {
   const date = state(new Date());
 
   // runs when element appended to dom
-  effect([], () => {
-    setInterval(() => (date.state = new Date()), 1000);
-  });
-
-  // runs every time 'date' changes
-  effect([date], () => {
-    console.log("date changed");
-  });
+  const $onAppend = () => setInterval(() => (date.state = new Date()), 1000);
 
   // runs on any update
-  effect(() => {
-    console.log("update");
+  const $onUpdate = () => console.log("update");
+
+  // runs every time 'date' changes
+  date.addListener((value) => {
+    console.log("date changed", value);
   });
 
-  return div({ id: "my-app" }, [
-    p({ $text: () => date.state.toLocaleTimeString() }),
-  ]);
+  return div(
+    {
+      $onAppend,
+      $onUpdate,
+      id: "my-app",
+    },
+    [p({ $text: () => date.state.toLocaleTimeString() })]
+  );
 }
 ```
 
