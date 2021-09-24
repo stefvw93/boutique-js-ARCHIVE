@@ -1,3 +1,7 @@
+:root {
+  --tile-size: 20px;
+}
+
 html,
 body {
   padding: 0;
@@ -27,8 +31,8 @@ body {
 
 .funky-tiles {
   display: grid;
-  grid-template-columns: repeat(10, 15px);
-  grid-template-rows: repeat(10, 15px);
+  grid-template-columns: repeat(10, var(--tile-size));
+  grid-template-rows: repeat(10, var(--tile-size));
   gap: 1px;
   height: 100%;
   justify-content: center;
@@ -39,5 +43,7 @@ body {
 .tile {
   transition: 1s background-color linear;
   will-change: background-color;
-  border-radius: 50%;
+  border-radius: calc(var(--tile-size) * 0.5);
+  width: var(--tile-size);
+  height: var(--tile-size);
 }
