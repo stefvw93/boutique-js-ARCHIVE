@@ -1,10 +1,10 @@
-import { defineConfig, UserConfig, mergeConfig } from "vite";
+import { defineConfig, UserConfig } from "vite";
 import { resolve } from "path";
 
 export default defineConfig(({ command, mode }) => {
   const common: UserConfig = {};
 
-  const productionConfig: UserConfig = mergeConfig(common, {
+  const productionConfig: UserConfig = {
     build: {
       lib: {
         entry: resolve(__dirname, "lib/index.ts"),
@@ -12,6 +12,7 @@ export default defineConfig(({ command, mode }) => {
         fileName: (format) => `boutique.${format}.js`,
       },
       rollupOptions: {
+        input: ["./lib/index.ts"],
         // make sure to externalize deps that shouldn't be bundled
         // into your library
         external: [],
@@ -29,9 +30,9 @@ export default defineConfig(({ command, mode }) => {
         },
       },
     },
-  });
+  };
 
-  if (mode === "production" || command === "serve") {
+  if (mode === "production") {
     return productionConfig;
   }
 

@@ -15,7 +15,8 @@
   "version": "0.1.0",
   "scripts": {
     "dev": "vite",
-    "build": "tsc && vite build && tsc lib/index.ts --declaration --emitDeclarationOnly --outDir dist --target ESNext --moduleResolution Node",
+    "build": "vite build && npm run generate-types",
+    "generate-types": "tsc --project tsconfig.types.json",
     "serve": "npm run build && vite preview"
   },
   "dependencies": {
