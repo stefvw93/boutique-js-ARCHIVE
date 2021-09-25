@@ -15,5 +15,5 @@
     "noImplicitReturns": true,
     "baseUrl": "."
   },
-  "include": ["./src", "./lib"]
+  "include": ["./dev", "./lib"]
 }
