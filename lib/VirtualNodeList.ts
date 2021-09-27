@@ -20,5 +20,7 @@ export class VirtualNodeList {
     State.boundNodeList = undefined;
   }
 
-  update() {}
+  update() {
+    console.log("update list");
+  }
 }

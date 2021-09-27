@@ -4,8 +4,7 @@ export function getDynamicValue<T>(
 ): T {
   const isDynamic = isFunction(dynamic);
   const value = isDynamic ? dynamic() : dynamic;
-  callback?.(isDynamic, value);
-  return value;
+  return callback?.(isDynamic, value) ?? value;
 }
 
 export function isFunction(input: unknown): input is Function {

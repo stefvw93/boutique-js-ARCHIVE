@@ -4,7 +4,7 @@ import { VirtualNode } from "../../lib/VirtualNode";
 const time = new State(new Date().getSeconds());
 const nums = new State([0, 1, 2]);
 
-// setInterval(() => nums.set((state) => state.concat(state.length)), 1000);
+setInterval(() => nums.set((state) => state.concat(state.length)), 1000);
 
 console.log(
   new VirtualNode(
@@ -20,7 +20,7 @@ console.log(
       nums.state.map(
         (n) => new VirtualNode("div", { $key: n, id: `list-node-${n}` })
       ),
-      "some words",
+      () => `these are the numbers: ${nums.state.join(", ")}`,
     ]
   )
 );
