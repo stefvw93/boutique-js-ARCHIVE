@@ -4,26 +4,37 @@ import { VirtualNode } from "../../lib/VirtualNode";
 const time = new State(new Date().getSeconds());
 const nums = new State([0, 1, 2]);
 
-setInterval(() => nums.set((state) => state.concat(state.length)), 1000);
+// setInterval(() => nums.set((state) => state.concat(state.length)), 1000);
 
-console.log(
-  new VirtualNode(
-    "div",
-    { id: () => time.state, "data-numbers": () => nums.state.slice() },
-    [
-      new VirtualNode("div", { id: "virtual-node" }),
-      () =>
-        nums.state.map(
-          (n) =>
-            new VirtualNode("div", { $key: n, id: `dynamic-list-node-${n}` })
-        ),
+const app = new VirtualNode(
+  "div",
+  {
+    id: () => time.state,
+    className: "numbers",
+    "data-numbers": () => nums.state.slice(),
+  },
+  [
+    new VirtualNode("div", { id: "virtual-node" }),
+    () =>
       nums.state.map(
-        (n) => new VirtualNode("div", { $key: n, id: `list-node-${n}` })
+        (n) =>
+          new VirtualNode("div", { $key: n, id: `dynamic-list-node-${n}` }, [
+            `dynamic ${n}`,
+          ])
       ),
-      () => `these are the numbers: ${nums.state.join(", ")}`,
-    ]
-  )
+    nums.state.map(
+      (n) =>
+        new VirtualNode("div", { $key: n, id: `list-node-${n}` }, [
+          `static ${n}`,
+        ])
+    ),
+    () => `these are the numbers: ${nums.state.join(", ")}`,
+  ]
 );
+
+console.log(app);
+
+document.getElementById("app")!.innerHTML = app.html;
 
 // import "./style.css";
 // import { div, h1 } from "../../lib/elements";

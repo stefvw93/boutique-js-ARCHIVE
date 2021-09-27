@@ -1,11 +1,21 @@
 import { State } from "./reactivity/State";
-import { getDynamicValue } from "./utils";
-import { Children, ChildType } from "./VirtualNode";
+import { getDynamicValue, isPrimitive } from "./utils";
+import { Children, ChildType, VirtualNode } from "./VirtualNode";
 import { VirtualNodeList } from "./VirtualNodeList";
 
 export class VirtualNodeCollection {
   private readonly __children: Children;
   private readonly __nodes: Array<ChildType | VirtualNodeList>;
+
+  get nodes(): Array<Primitive | VirtualNode> {
+    return this.__nodes
+      .map((element) =>
+        isPrimitive(element) || element instanceof VirtualNode
+          ? element
+          : element.nodes
+      )
+      .flat();
+  }
 
   constructor(children: Children) {
     this.__children = children;
@@ -18,7 +28,7 @@ export class VirtualNodeCollection {
         if (isDynamic) {
           State.boundNodeCollection = this;
           (State.boundDynamicNode = element as () => ChildType)();
-          return element;
+          return value;
         }
 
         return value;

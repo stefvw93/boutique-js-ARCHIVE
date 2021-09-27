@@ -14,6 +14,36 @@ export class VirtualNode {
     return { ...this.__properties };
   }
 
+  get children() {
+    return this.__children.nodes;
+  }
+
+  get html(): string {
+    return [
+      [
+        `<${this.tag}`,
+        Object.entries(this.properties)
+          .filter(([key]) => !key.startsWith("$"))
+          .reduce(
+            (acc, [key, value]) => (
+              (acc += ` ${this.__getHtmlAttributeName(key)}="${getDynamicValue(
+                value
+              )}"`),
+              acc
+            ),
+            ""
+          ),
+        `>`,
+      ].join(""),
+
+      this.children
+        .map((child) => (child instanceof VirtualNode ? child.html : child))
+        .join(""),
+
+      `</${this.tag}>`,
+    ].join("");
+  }
+
   constructor(
     readonly tag: string,
     properties: Record<string, Dynamic<any>> = {},
@@ -38,5 +68,17 @@ export class VirtualNode {
 
     State.boundNode = undefined;
     State.boundNodeProperty = undefined;
+  }
+
+  private __getHtmlAttributeName(name: string) {
+    switch (name) {
+      case "className":
+        return "class";
+    }
+
+    return name
+      .split(/(?=[A-Z])/)
+      .map((str) => str.toLowerCase())
+      .join("-");
   }
 }
