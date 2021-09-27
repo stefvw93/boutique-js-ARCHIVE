@@ -1,14 +1,14 @@
 import { State } from "./reactivity/State";
-import { getDynamicValue, isFunction } from "./utils";
-import { VirtualNodeList } from "./VirtualNodeList";
+import { getDynamicValue } from "./utils";
+import { VirtualNodeCollection } from "./VirtualNodeCollection";
 
 export type ChildType = Primitive | VirtualNode;
-export type Children = Array<ChildType | ChildType[] | (() => ChildType[])>;
+export type Children = Array<ChildType | Dynamic<ChildType[]>>;
 
 export class VirtualNode {
   private readonly __properties: Record<string, any>;
   private readonly __state: Record<string, any> = {};
-  private readonly __children: any;
+  private readonly __children: VirtualNodeCollection;
 
   get properties() {
     return { ...this.__properties };
@@ -19,11 +19,7 @@ export class VirtualNode {
     properties: Record<string, Dynamic<any>> = {},
     children: Children = []
   ) {
-    this.__children = children.map((child) =>
-      Array.isArray(child) || isFunction(child)
-        ? new VirtualNodeList(child)
-        : child
-    );
+    this.__children = new VirtualNodeCollection(children);
     this.__properties = properties;
     this.__setInitialState();
   }

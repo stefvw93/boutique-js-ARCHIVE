@@ -5,14 +5,15 @@ import { VirtualNodeList } from "lib/VirtualNodeList";
 export class State<T> {
   static boundNode?: VirtualNode;
   static boundNodeProperty?: string;
-  static boundNodeCollection?: VirtualNodeList;
+  static boundNodeList?: VirtualNodeList;
   private __boundNodes = new Map<VirtualNode, Set<string>>();
-  private __boundNodeCollections = new Set<VirtualNodeList>();
+  private __boundNodeLists = new Set<VirtualNodeList>();
   private __listeners: ((value: T) => void)[] = [];
   protected __internalState: T;
 
   constructor(initialValue: T) {
     this.__internalState = initialValue;
+    console.log(this);
     seal(this);
   }
 
@@ -24,8 +25,8 @@ export class State<T> {
       map?.add(State.boundNodeProperty);
     }
 
-    if (State.boundNodeCollection) {
-      this.__boundNodeCollections.add(State.boundNodeCollection);
+    if (State.boundNodeList) {
+      this.__boundNodeLists.add(State.boundNodeList);
     }
 
     return this.__internalState;
@@ -53,7 +54,7 @@ export class State<T> {
         properties.forEach((property) => node.update(property));
       }
 
-      this.__boundNodeCollections.forEach((collection) => collection.update());
+      this.__boundNodeLists.forEach((collection) => collection.update());
     }
   }
 }
