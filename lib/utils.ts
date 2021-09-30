@@ -1,6 +1,6 @@
 export function getDynamicValue<T>(
   dynamic: Dynamic<T>,
-  callback?: (isDynamic: boolean, value: T) => void
+  callback?: (isDynamic: boolean, value: T) => T
 ): T {
   const isDynamic = isFunction(dynamic);
   const value = isDynamic ? dynamic() : dynamic;

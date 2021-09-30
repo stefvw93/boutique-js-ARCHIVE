@@ -1,6 +1,5 @@
 import { seal } from "../utils/seal";
 import { ChildType, VirtualNode } from "lib/VirtualNode";
-import { VirtualNodeList } from "lib/VirtualNodeList";
 import { VirtualNodeCollection } from "lib/VirtualNodeCollection";
 
 export class State<T> {
@@ -8,22 +7,18 @@ export class State<T> {
   static boundNodeProperty?: string;
 
   static boundNodeCollection?: VirtualNodeCollection;
-  static boundDynamicNode?: () => ChildType;
-
-  static boundNodeList?: VirtualNodeList;
+  static boundDynamicNode?: () => ChildType | ChildType[];
 
   private __boundNodes = new Map<VirtualNode, Set<string>>();
-  private __boundNodeLists = new Set<VirtualNodeList>();
   private __boundNodeCollections = new Map<
     VirtualNodeCollection,
-    Set<() => ChildType>
+    Set<() => ChildType | ChildType[]>
   >();
   private __listeners: ((value: T) => void)[] = [];
   protected __internalState: T;
 
   constructor(initialValue: T) {
     this.__internalState = initialValue;
-    console.log(this);
     seal(this);
   }
 
@@ -42,10 +37,6 @@ export class State<T> {
           .set(State.boundNodeCollection, new Set())
           .get(State.boundNodeCollection);
       map?.add(State.boundDynamicNode);
-    }
-
-    if (State.boundNodeList) {
-      this.__boundNodeLists.add(State.boundNodeList);
     }
 
     return this.__internalState;
@@ -76,8 +67,6 @@ export class State<T> {
       for (let [collection, nodes] of this.__boundNodeCollections.entries()) {
         nodes.forEach((node) => collection.update(node));
       }
-
-      this.__boundNodeLists.forEach((list) => list.update());
     }
   }
 }
